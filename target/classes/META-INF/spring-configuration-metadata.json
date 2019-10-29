@@ -1,0 +1,51 @@
+{
+  "groups": [
+    {
+      "name": "shiro",
+      "type": "com.sxt.sys.configuration.ShiroAutoConfiguration",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration"
+    }
+  ],
+  "properties": [
+    {
+      "name": "shiro.anon-urls",
+      "type": "java.lang.String[]",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration"
+    },
+    {
+      "name": "shiro.authc-urls",
+      "type": "java.lang.String[]",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration"
+    },
+    {
+      "name": "shiro.hash-algorithm-name",
+      "type": "java.lang.String",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration",
+      "defaultValue": "md5"
+    },
+    {
+      "name": "shiro.hash-iterations",
+      "type": "java.lang.Integer",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration",
+      "defaultValue": 2
+    },
+    {
+      "name": "shiro.login-url",
+      "type": "java.lang.String",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration",
+      "defaultValue": "\/index.html"
+    },
+    {
+      "name": "shiro.logout-url",
+      "type": "java.lang.String",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration"
+    },
+    {
+      "name": "shiro.unauthorized-url",
+      "type": "java.lang.String",
+      "sourceType": "com.sxt.sys.configuration.ShiroAutoConfiguration",
+      "defaultValue": "\/unauthorize.html"
+    }
+  ],
+  "hints": []
+}

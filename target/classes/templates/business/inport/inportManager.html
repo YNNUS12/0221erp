@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>进货管理</title>
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+  <!-- 引入样式 -->
+<link rel="stylesheet" href="/resources/layui/css/layui.css" media="all">
+<link rel="stylesheet" href="/resources/css/public.css" media="all">
+</head>
+<body class="childrenBody">
+<form class="layui-form" id="searchForm" method="post">
+    <div class="layui-form-item">
+    	<div class="layui-inline">
+            <label class="layui-form-label" >供应商:</label>
+            <div class="layui-input-inline">
+                <select name="providerid" id="searchproviderid" lay-verify="required" lay-filter='searchproviderid'>
+					
+				</select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" >商品名称:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="goodsname"  autocomplete="off" class="layui-input">
+            </div>
+        </div>
+         <div class="layui-form-item">
+	        <div class="layui-inline">
+	            <label class="layui-form-label" >开始时间:</label>
+	            <div class="layui-input-inline">
+	                <input type="text" name="startTime"  id="startTime" autocomplete="off" class="layui-input">
+	            </div>
+	        </div>
+	         <div class="layui-inline">
+	            <label class="layui-form-label" >结束时间:</label>
+	            <div class="layui-input-inline">
+	                <input type="text" name="endTime" id="endTime" autocomplete="off" class="layui-input">
+	            </div>
+	             <a class="layui-btn search_btn" id="doSearch">查询</a>
+        		<button type="reset" class="layui-btn layui-btn-warm">清空</button>
+	        </div>
+        </div>
+    </div>
+</form>
+<table id="inportList" lay-filter="inportList"></table>
+<!--表格工具条-->
+<div  style="display: none;" id="tableToolBar">
+	<a class="layui-btn  layui-btn-sm " lay-event="add">添加</a>
+</div>
+<!--操作-->
+<div   style="display: none;" id="inportListBar">
+    <a class="layui-btn layui-btn-sm"  lay-event="update"  >修改</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger"   lay-event="delete"  >删除</a>
+</div>
+
+<!-- 添加和修改开始 -->
+<div id="dataFrmContent" style="padding: 10px;display: none;" >
+	<form class="layui-form" method="post" id="dataFrm" lay-filter="dataFrm" >
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">供应商</label>
+				<div class="layui-input-inline">
+					<input type="hidden" name="id">
+					<select name="providerid" id="providerid" lay-verify="required" lay-filter='providerid'>
+				    </select>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">商品名称</label>
+				<div class="layui-input-inline">
+				    <select name="goodsid" id="goodsid" lay-verify="required" lay-filter='goodsid'>
+				   	 </select>
+				</div>
+			</div>
+			<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">进货数量</label>
+				<div class="layui-input-inline">
+					 <input type="text" name="number"  autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">进货价格</label>
+				<div class="layui-input-inline">
+					 <input type="text" name="inportprice"  autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">支付类型</label>
+				<div class="layui-input-block">
+					  <input type="radio" name="paytype"  value="支付宝" title="支付宝" checked="">
+		              <input type="radio" name="paytype"  value="微信" title="微信">
+		              <input type="radio" name="paytype"  value="银联" title="银联">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">进货备注</label>
+				<div class="layui-input-block">
+					 <input type="text" name="remark"  autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			
+		</div>
+		<div class="layui-form-item" style="text-align: center;">
+			<button class="layui-btn" lay-submit="" lay-filter="doSubmit">提交</button>
+			<button type="reset" class="layui-btn layui-btn-warm">重置</button>
+		</div>
+	</form>
+</div>
+<!-- 添加和修改结束 -->
+
+<script type="text/javascript" src="/resources/layui/layui.js"></script>
+</body>
+<script type="text/javascript">
+    var tableIns;
+    layui.use(['form','layer','table','laydate'],function(){
+        var form = layui.form,
+            layer = layui.layer,
+            $ = layui.jquery,
+            laydate = layui.laydate,
+            table = layui.table;
+             
+        
+        laydate.render({
+        	elem:'#startTime',
+        	type:'datetime'
+        })
+        
+        laydate.render({
+        	elem:'#endTime',
+        	type:'datetime'
+        })
+        
+        //初始化查询的下拉列表
+        $.get("/provider/loadAllAvailableProviderJson",function(obj){
+        	var searchproviderid=$("#searchproviderid");
+        	var providerid=$("#providerid");
+        	var html="<option value=''>请选择供应商</option>";
+        	$.each(obj,function(index,item){
+        		html+="<option value="+item.id+">"+item.providername+"</option>"
+        	});
+        	searchproviderid.html(html);
+        	providerid.html(html);
+        	form.render("select");
+        })
+        
+        //进货列表
+        tableIns = table.render({
+            elem: '#inportList',
+            url : '/inport/loadAllInport',
+            cellMinWidth : 95,
+            toolbar: '#tableToolBar',
+            page : true,
+            height : "full-130",
+            id : "inportListTable",
+            cols : [ [
+                {field: 'id', title: '进货ID', minWidth:80, align:"center"},
+                {field: 'goodsname', title: '进货名称',width:120, minWidth:100, align:"center"},
+                {field: 'providername', title: '供应商', minWidth:100,width:120, align:"center"},
+                {field: 'size', title: '规格',width:120,  align:'center'},
+                {field: 'inporttime', title: '进货时间',width:200, minWidth:100, align:"center"},
+                {field: 'number', title: '进货数量',width:120, minWidth:100, align:"center"},
+                {field: 'inportprice', title: '进货价格',width:120, minWidth:100, align:"center"},
+                {field: 'remark', title: '备注',width:120, minWidth:100, align:"center"},
+                {field: 'operateperson', title: '操作员',width:120, minWidth:100, align:"center"},
+                {title: '操作', minWidth:185, templet:'#inportListBar',fixed:"right",align:"center"}
+            ] ]
+        });
+
+        //查询
+        $("#doSearch").click(function(){
+            var params=$("#searchForm").serialize();
+            table.reload('inportListTable', {
+                url: '/inport/loadAllInport?'+params
+            });
+        });
+        //监听头工具栏事件
+        table.on('toolbar(inportList)', function(obj){
+            switch(obj.event){
+	            case 'add':
+	               	toAddInport();
+                	break;
+            };
+        });
+
+        //打开 添加进货的弹出层
+        var url="";
+        var index;
+        function toAddInport(){
+            index = layui.layer.open({
+                title : "添加进货",
+                type : 1,//页面层
+                content : $("#dataFrmContent"),
+                skin:'layui-layer-molv',
+				area : [ '900px', '550px' ],
+				shadeClose:true,//设置是否点击遮罩关闭
+				maxmin:true,//设置是否显示最大化和最小化的按钮
+				resize:true,//设置是否支持拉伸缩小放大  默认为true
+                success : function(layero, index){
+                    url="/inport/addInport"
+                }
+            })
+        }
+        
+        
+        
+        //修改进货
+        function updateInport(data){
+        	index = layui.layer.open({
+                title : "添加进货",
+                type : 1,//页面层
+                content : $("#dataFrmContent"),
+                skin:'layui-layer-molv',
+				area : [ '800px', '550px' ],
+				shadeClose:true,//设置是否点击遮罩关闭
+				maxmin:true,//设置是否显示最大化和最小化的按钮
+				resize:true,//设置是否支持拉伸缩小放大  默认为true
+                success : function(layero, index){
+                	$("#dataFrm")[0].reset();
+                	form.val("dataFrm",data);
+                	var providerid=$("#providerid").val();
+                	initGoodsByProviderId(providerid,data.goodsid);
+                	$("#providerid").attr({"disabled":"disabled"});
+                	$("#goodsid").attr({"disabled":"disabled"});
+                    url="/inport/updateInport"
+                }
+            })
+        }
+        
+        //监听弹出层里面的供应商的下拉列表事件
+        form.on('select(providerid)', function(data){
+        	initGoodsByProviderId(data.value);
+		});    
+        function initGoodsByProviderId(providerid,goodsid){
+        	$.get("/goods/loadGoodsByProviderId",{providerid:providerid},function(obj){
+        		var html="<option value=''>请选择商品</option>";
+        		$.each(obj,function(index,item){
+        			html+="<option value="+item.id+">"+item.goodsname+"["+item.size+"]"+"</option>";
+        		})
+        		$("#goodsid").html(html);
+        		
+        		if(goodsid!=undefined){
+        			$("#goodsid").val(goodsid);
+        		}
+        		form.render("select");
+        	})
+        }
+        //监听提交
+        form.on('submit(doSubmit)', function(data){
+        	$("#providerid").attr({"disabled":false});
+        	$("#goodsid").attr({"disabled":false});
+            var params=$("#dataFrm").serialize();
+            $.post(url,params,function(obj){
+    				layer.msg(obj.msg);
+    				  //刷新table
+                    tableIns.reload();
+    				layer.close(index);
+            });
+            return false;
+        });
+        
+        //列表操作
+        table.on('tool(inportList)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;
+            if(layEvent === 'update'){ //编辑
+                updateInport(data);//data主当前点击的行
+            }else if(layEvent === 'delete'){ //删除
+                layer.confirm('确定删除进货信息吗？',{icon:3, title:'提示信息'},function(index){
+                    $.post("/inport/deleteInport",{
+                        id : data.id,  //将需要删除的id作为参数传入
+                        number:data.number,
+                        goodsid:data.goodsid
+                    },function(data){
+                        //刷新table
+                        tableIns.reload();
+                        //关闭提示框
+                        layer.close(index);
+                    })
+                });
+            }
+        });
+    })
+    
+</script>
+</html>

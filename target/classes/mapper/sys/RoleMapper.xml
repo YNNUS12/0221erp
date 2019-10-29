@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxt.sys.mapper.RoleMapper">
+  <resultMap id="BaseResultMap" type="com.sxt.sys.domain.Role">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="available" jdbcType="INTEGER" property="available" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, remark, available, createtime
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_role
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from sys_role
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.sxt.sys.domain.Role">
+    insert into sys_role (id, name, remark, 
+      available, createtime)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{available,jdbcType=INTEGER}, #{createtime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sxt.sys.domain.Role">
+    insert into sys_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="available != null">
+        available,
+      </if>
+      <if test="createtime != null">
+        createtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="available != null">
+        #{available,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null">
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sxt.sys.domain.Role">
+    update sys_role
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="available != null">
+        available = #{available,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null">
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sxt.sys.domain.Role">
+    update sys_role
+    set name = #{name,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      available = #{available,jdbcType=INTEGER},
+      createtime = #{createtime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 全查询 -->
+   <select id="queryAllRole"  resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_role
+    <where>
+    	<if test="name!=null and name!=''">
+    		and name like concat("%",#{name},"%")
+    	</if>
+    	<if test="remark!=null and remark!=''">
+    		and remark like concat("%",#{remark},"%")
+    	</if>
+    	<if test="available!=null">
+    		and available =#{available}
+    	</if>
+    </where>
+    order by createtime
+  </select>
+  
+  <!--   /**
+     * 根据角色ID删除sys_role_permission
+     */
+    void deleteRolePermissionByRoleId(Integer roleId);
+    -->
+    <delete id="deleteRolePermissionByRoleId">
+    	delete from sys_role_permission where rid=#{value}
+    </delete>
+    <!-- 
+    /**
+     * 根据角色ID删除sys_role_user
+     */
+    void deleteRoleUserByRoleId(Integer roleId); -->
+     <delete id="deleteRoleUserByRoleId">
+    	delete from sys_role_user where rid=#{value}
+    </delete>
+    
+    <!-- 保存角色和权限之间的关系 -->
+    <insert id= "insertRolePermission">
+    	insert into sys_role_permission(rid,pid) values(#{rid},#{pid})
+    </insert>
+    
+    <!-- 根据用户ID查询角色 -->
+    <select id="queryRoleByUserId" resultMap="BaseResultMap">
+    	select t1.* from sys_role t1 inner join sys_role_user t2 on(t1.id=t2.rid)
+    	where t2.uid=#{userid} and t1.available=#{available}
+    </select>
+</mapper>
